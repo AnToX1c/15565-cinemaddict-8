@@ -1,7 +1,8 @@
-import createElement from './create-element.js';
+import Component from './component.js';
 
-export default class FilmCard {
+class FilmCard extends Component {
   constructor(data) {
+    super();
     this._title = data.title;
     this._description = data.description;
     this._images = data.images;
@@ -13,8 +14,8 @@ export default class FilmCard {
     this._isWatched = data.isWatched;
     this._isFavorite = data.isFavorite;
 
-    this._element = null;
     this._onCommentsClick = null;
+    this._onButtonClick = this._onButtonClick.bind(this);
   }
 
   _onButtonClick() {
@@ -52,17 +53,9 @@ export default class FilmCard {
   }
 
   unbind() {
-    // Удаление обработчиков
-  }
-
-  render() {
-    this._element = createElement(this.template);
-    this.bind();
-    return this._element;
-  }
-
-  unrender() {
-    this.unbind();
-    this._element = null;
+    this._element.querySelector(`button.film-card__comments`)
+        .removeEventListener(`click`, this._onButtonClick);
   }
 }
+
+export default FilmCard;
