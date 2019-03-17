@@ -1,14 +1,16 @@
 import Component from './component.js';
+import moment from 'moment';
 
 class FilmPopup extends Component {
   constructor(data) {
     super();
     this._title = data.title;
+    this._originalTitle = data.originalTitle;
     this._description = data.description;
     this._images = data.images;
     this._rating = data.rating;
-    this._year = data.year;
     this._genre = data.genre;
+    this._releaseDate = data.releaseDate;
     this._commentsNumber = data.commentsNumber;
     this._isWatchlist = data.isWatchlist;
     this._isWatched = data.isWatched;
@@ -43,7 +45,7 @@ class FilmPopup extends Component {
                     <div class="film-details__info-head">
                       <div class="film-details__title-wrap">
                         <h3 class="film-details__title">${this._title}</h3>
-                        <p class="film-details__title-original">Original: Невероятная семейка</p>
+                        <p class="film-details__title-original">Original: ${this._originalTitle}</p>
                       </div>
 
                       <div class="film-details__rating">
@@ -67,7 +69,7 @@ class FilmPopup extends Component {
                       </tr>
                       <tr class="film-details__row">
                         <td class="film-details__term">Release Date</td>
-                        <td class="film-details__cell">15 June ${this._year} (USA)</td>
+                        <td class="film-details__cell">${moment(this._releaseDate).format(`DD MMMM YYYY`)} (USA)</td>
                       </tr>
                       <tr class="film-details__row">
                         <td class="film-details__term">Runtime</td>

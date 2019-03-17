@@ -1,4 +1,5 @@
 import Component from './component.js';
+import moment from 'moment';
 
 class FilmCard extends Component {
   constructor(data) {
@@ -7,8 +8,8 @@ class FilmCard extends Component {
     this._description = data.description;
     this._images = data.images;
     this._rating = data.rating;
-    this._year = data.year;
     this._genre = data.genre;
+    this._releaseDate = data.releaseDate;
     this._commentsNumber = data.commentsNumber;
     this._isWatchlist = data.isWatchlist;
     this._isWatched = data.isWatched;
@@ -31,7 +32,7 @@ class FilmCard extends Component {
           <h3 class="film-card__title">${this._title}</h3>
           <p class="film-card__rating">${this._rating}</p>
           <p class="film-card__info">
-            <span class="film-card__year">${this._year}</span>
+            <span class="film-card__year">${moment(this._releaseDate).format(`YYYY`)}</span>
             <span class="film-card__duration">1h&nbsp;13m</span>
             <span class="film-card__genre">${this._genre}</span>
           </p>

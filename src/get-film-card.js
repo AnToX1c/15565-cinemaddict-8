@@ -12,6 +12,7 @@ const descriptions = new Set([
 const genres = new Set([`Comedy`, `Drama`, `Crime`, `Action`, `Detective`, `Horror`]);
 const getRandomBoolean = () => Math.random() >= 0.5;
 const getRandomInteger = (min, max) => Math.floor(min + Math.random() * (max + 1 - min));
+const getRandomDate = (start, end) => new Date(start.getTime() + Math.random() * (end.getTime() - start.getTime()));
 
 const getFilmCard = () => ({
   title: [
@@ -30,6 +31,23 @@ const getFilmCard = () => ({
     `Green Book`,
     `Can You Ever Forgive Me?`,
     `Gilmore Girls`][getRandomInteger(0, 15)],
+  originalTitle: [
+    `Убийство Джесси Джеймса`,
+    `Суперсемейка 2`,
+    `Американские боги`,
+    `Покидая Неверленд`,
+    `Холодная война`,
+    `Как приручить дракона: Cкрытый мир`,
+    `The Highwaymen`,
+    `Тройная граница`,
+    `Тройной рубеж`,
+    `Грязь`,
+    `Черное зеркало`,
+    `Ирландец`,
+    `Аполлон 11`,
+    `Зеленая книга`,
+    `Сможете ли вы меня простить?`,
+    `Девочки Гилмор`][getRandomInteger(0, 15)],
   description: [...descriptions.keys()].sort(() => 0.5 - Math.random()).slice(0, getRandomInteger(1, 2)),
   images: [
     `./images/posters/accused.jpg`,
@@ -39,8 +57,8 @@ const getFilmCard = () => ({
     `./images/posters/moonrise.jpg`,
     `./images/posters/three-friends.jpg`][getRandomInteger(0, 5)],
   rating: (Math.random() * (9.99 - 2.00) + 2.00).toFixed(1),
-  year: getRandomInteger(1980, 2019),
   genre: [...genres.keys()][getRandomInteger(0, genres.size)],
+  releaseDate: getRandomDate(new Date(getRandomInteger(1980, 2019), 0, 1), new Date(getRandomInteger(1980, 2019), 11, 31)),
   commentsNumber: getRandomInteger(1, 53),
   isWatchlist: getRandomBoolean(),
   isWatched: getRandomBoolean(),
