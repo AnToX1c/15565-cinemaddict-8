@@ -1,7 +1,8 @@
-import createElement from './create-element.js';
+import Component from './component.js';
 
-export default class FilmPopup {
+class FilmPopup extends Component {
   constructor(data) {
+    super();
     this._title = data.title;
     this._description = data.description;
     this._images = data.images;
@@ -13,8 +14,8 @@ export default class FilmPopup {
     this._isWatched = data.isWatched;
     this._isFavorite = data.isFavorite;
 
-    this._element = null;
     this._onClick = null;
+    this._onCloseButtonClick = this._onCloseButtonClick.bind(this);
   }
 
   _onCloseButtonClick() {
@@ -198,17 +199,9 @@ export default class FilmPopup {
   }
 
   unbind() {
-    // Удаление обработчиков
-  }
-
-  render() {
-    this._element = createElement(this.template);
-    this.bind();
-    return this._element;
-  }
-
-  unrender() {
-    this.unbind();
-    this._element.remove();
+    this._element.querySelector(`.film-details__close-btn`)
+        .removeEventListener(`click`, this._onCloseButtonClick);
   }
 }
+
+export default FilmPopup;
