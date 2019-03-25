@@ -76,9 +76,9 @@ class FilmPopup extends Component {
   }
 
   update(data) {
-    this._isWatchlist = data.isWatchlist === `on` ? true : false;
-    this._isWatched = data.isWatched === `on` ? true : false;
-    this._isFavorite = data.isFavorite === `on` ? true : false;
+    this._isWatchlist = data.isWatchlist === `on`;
+    this._isWatched = data.isWatched === `on`;
+    this._isFavorite = data.isFavorite === `on`;
     this._comment = data.comment;
     this._score = data.score;
   }

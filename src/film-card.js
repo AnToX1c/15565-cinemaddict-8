@@ -59,13 +59,13 @@ class FilmCard extends Component {
         .removeEventListener(`click`, this._onButtonClick);
   }
 
-  // update(data) {
-  //   this._isWatchlist = data.isWatchlist;
-  //   this._isWatched = data.isWatched;
-  //   this._isFavorite = data.isFavorite;
-  //   this._comment = data.comment;
-  //   this._score = data.score;
-  // }
+  update(data) {
+    this._isWatchlist = data.isWatchlist;
+    this._isWatched = data.isWatched;
+    this._isFavorite = data.isFavorite;
+    this._comment = data.comment;
+    this._score = data.score;
+  }
 }
 
 export default FilmCard;
