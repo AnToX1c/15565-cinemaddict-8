@@ -31,6 +31,16 @@ const fillTheCards = (destination, amount) => {
     filmPopup.onCloseButtonClick = () => {
       filmPopup.unrender();
     };
+    filmPopup.onSubmit = (newObject) => {
+      el.isWatchlist = newObject.isWatchlist === `on` ? true : false;
+      el.isWatched = newObject.isWatched === `on` ? true : false;
+      el.isFavorite = newObject.isFavorite === `on` ? true : false;
+      el.comment = newObject.comment;
+      el.score = newObject.score;
+
+      filmCard.update(el);
+      filmPopup.unrender();
+    };
   }
 };
 
