@@ -1,17 +1,18 @@
-import renderNavigationItem from './render-navigation-element.js';
+import Filter from './filter.js';
+import getFilter from './get-filter.js';
 import getFilmCard from './get-film-card.js';
 import FilmCard from './film-card.js';
 import FilmPopup from './film-popup.js';
 
-const NUMBER_OF_CARDS = 1;
-const NUMBER_OF_TOPCARDS = 0;
+const NUMBER_OF_CARDS = 7;
+const NUMBER_OF_TOPCARDS = 2;
+const NUMBER_OF_FILTERS = 4;
 const mainNavigationContainer = document.querySelector(`.main-navigation`);
+const mainNavigationAdditionalItem = document.querySelector(`.main-navigation__item--additional`);
 const filmListContainer = document.querySelector(`.films-list__container`);
 const filmListExtra = document.querySelectorAll(`.films-list--extra .films-list__container`);
 
-const getRandomInteger = (min, max) => Math.floor(min + Math.random() * (max + 1 - min));
-
-const getAllCards = (amount) => {
+const getCards = (amount) => {
   const allCards = [];
   for (let i = 0; i < amount; i++) {
     allCards.push(getFilmCard());
@@ -19,9 +20,10 @@ const getAllCards = (amount) => {
   return allCards;
 };
 
-const fillTheCards = (destination, amount) => {
-  const allCards = getAllCards(amount);
-  for (const el of allCards) {
+const initialCards = getCards(NUMBER_OF_CARDS);
+
+const fillTheCards = (destination, cards) => {
+  for (const el of cards) {
     const filmCard = new FilmCard(el);
     const filmPopup = new FilmPopup(el);
     destination.appendChild(filmCard.render());
@@ -52,28 +54,60 @@ const fillTheCards = (destination, amount) => {
   }
 };
 
-const clearBoard = () => {
-  filmListContainer.innerHTML = ``;
-  fillTheCards(filmListContainer, getRandomInteger(1, 10));
+const getFilters = () => {
+  const filters = [];
+  for (let i = 0; i < NUMBER_OF_FILTERS; i++) {
+    filters.push(getFilter(i));
+  }
+  filters[0].amount = ``;
+  filters[0].isActive = true;
+  return filters;
 };
 
-let navigationElements;
+const filters = getFilters();
 
-mainNavigationContainer.insertAdjacentHTML(`afterbegin`, renderNavigationItem(`Favorites`, `Favorites`, getRandomInteger(0, 120)));
-mainNavigationContainer.insertAdjacentHTML(`afterbegin`, renderNavigationItem(`History`, `History`, getRandomInteger(0, 120)));
-mainNavigationContainer.insertAdjacentHTML(`afterbegin`, renderNavigationItem(`Watchlist`, `Watchlist`, getRandomInteger(0, 120)));
-mainNavigationContainer.insertAdjacentHTML(`afterbegin`, renderNavigationItem(`All`, `All movies`, 0, true));
+const renderFilters = () => {
+  for (const filter of filters) {
+    const filterComponent = new Filter(filter);
 
-navigationElements = mainNavigationContainer.querySelectorAll(`.main-navigation__item`);
-for (const el of navigationElements) {
-  el.onclick = function (evt) {
-    evt.preventDefault();
-    clearBoard();
-  };
-}
+    filterComponent.onFilter = (evt) => {
+      const filterElements = mainNavigationContainer.querySelectorAll(`.main-navigation__item`);
+      for (const el of filterElements) {
+        el.classList.remove(`main-navigation__item--active`);
+      };
+      evt.target.classList.add(`main-navigation__item--active`);
+      const filterName = evt.target.firstChild.data;
+      const filteredCards = filterCards(initialCards, filterName);
+      console.log(filteredCards);
+      filmListContainer.innerHTML = ``;
+      fillTheCards(filmListContainer, filteredCards);
+    };
+
+    mainNavigationContainer.insertBefore(filterComponent.render(), mainNavigationAdditionalItem);
+  }
+};
+
+const filterCards = (cards, filterName) => {
+  switch (filterName) {
+    case `All movies`:
+      return cards;
+
+    case `Watchlist `:
+      return cards.filter((it) => it.isWatchlist);
+
+    case `History `:
+      return cards.filter((it) => it.isWatched);
+
+    case `Favorites `:
+      return cards.filter((it) => it.isFavorite);
+  }
+  return cards;
+};
+
+renderFilters();
+fillTheCards(filmListContainer, initialCards);
 
 for (const el of filmListExtra) {
-  fillTheCards(el, NUMBER_OF_TOPCARDS);
+  const extraCards = getCards(NUMBER_OF_TOPCARDS)
+  fillTheCards(el, extraCards);
 }
-
-fillTheCards(filmListContainer, NUMBER_OF_CARDS);
