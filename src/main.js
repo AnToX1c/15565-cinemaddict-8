@@ -3,8 +3,8 @@ import getFilmCard from './get-film-card.js';
 import FilmCard from './film-card.js';
 import FilmPopup from './film-popup.js';
 
-const NUMBER_OF_CARDS = 7;
-const NUMBER_OF_TOPCARDS = 2;
+const NUMBER_OF_CARDS = 1;
+const NUMBER_OF_TOPCARDS = 0;
 const mainNavigationContainer = document.querySelector(`.main-navigation`);
 const filmListContainer = document.querySelector(`.films-list__container`);
 const filmListExtra = document.querySelectorAll(`.films-list--extra .films-list__container`);
@@ -28,13 +28,21 @@ const fillTheCards = (destination, amount) => {
     filmCard.onCommentsClick = () => {
       document.body.appendChild(filmPopup.render());
     };
+    filmCard.onAddToWatchList = () => {
+      el.isWatchlist = !el.isWatchlist;
+      filmPopup._isWatchlist = !filmPopup._isWatchlist;
+    };
+    filmCard.onMarkAsWatched = () => {
+      el.isWatched = !el.isWatched;
+      filmPopup._isWatched = !filmPopup._isWatched;
+    };
     filmPopup.onCloseButtonClick = () => {
       filmPopup.unrender();
     };
     filmPopup.onSubmit = (newObject) => {
-      el.isWatchlist = newObject.isWatchlist === `on` ? true : false;
-      el.isWatched = newObject.isWatched === `on` ? true : false;
-      el.isFavorite = newObject.isFavorite === `on` ? true : false;
+      el.isWatchlist = newObject.isWatchlist === `on`;
+      el.isWatched = newObject.isWatched === `on`;
+      el.isFavorite = newObject.isFavorite === `on`;
       el.comment = newObject.comment;
       el.score = newObject.score;
 
