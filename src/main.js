@@ -3,14 +3,18 @@ import getFilter from './get-filter.js';
 import getFilmCard from './get-film-card.js';
 import FilmCard from './film-card.js';
 import FilmPopup from './film-popup.js';
+import Statistic from './statistic.js';
 
 const NUMBER_OF_CARDS = 7;
 const NUMBER_OF_TOPCARDS = 2;
 const NUMBER_OF_FILTERS = 4;
-const mainNavigationContainer = document.querySelector(`.main-navigation`);
-const mainNavigationAdditionalItem = document.querySelector(`.main-navigation__item--additional`);
-const filmListContainer = document.querySelector(`.films-list__container`);
-const filmListExtra = document.querySelectorAll(`.films-list--extra .films-list__container`);
+const mainContainer = document.querySelector(`.main`);
+const mainNavigationContainer = mainContainer.querySelector(`.main-navigation`);
+const statItem = mainNavigationContainer.querySelector(`.main-navigation__item--additional`);
+const filmsContainer = mainContainer.querySelector(`.films`);
+const filmListContainer = mainContainer.querySelector(`.films-list__container`);
+const filmListExtra = mainContainer.querySelectorAll(`.films-list--extra .films-list__container`);
+let statisticContainer = null;
 
 const getCards = (amount) => {
   const allCards = [];
@@ -54,6 +58,23 @@ const fillTheCards = (destination, cards) => {
   }
 };
 
+const renderStatistic = () => {
+  const watchedFilms = initialCards.filter((it) => it.isWatched);
+  const statisticComponent = new Statistic(watchedFilms);
+  mainContainer.appendChild(statisticComponent.render());
+  filmsContainer.classList.add(`visually-hidden`);
+  statisticContainer = mainContainer.querySelector(`.statistic`);
+  statisticContainer.querySelector(`.statistic__filters`).classList.remove(`visually-hidden`);
+};
+
+const unrenderStatistic = () => {
+  if (statisticContainer) {
+    statisticContainer.parentNode.removeChild(statisticContainer);
+    statisticContainer = null;
+  }
+  filmsContainer.classList.remove(`visually-hidden`);
+};
+
 const getFilters = () => {
   const filters = [];
   for (let i = 0; i < NUMBER_OF_FILTERS; i++) {
@@ -74,16 +95,16 @@ const renderFilters = () => {
       const filterElements = mainNavigationContainer.querySelectorAll(`.main-navigation__item`);
       for (const el of filterElements) {
         el.classList.remove(`main-navigation__item--active`);
-      };
+      }
       evt.target.classList.add(`main-navigation__item--active`);
       const filterName = evt.target.firstChild.data;
       const filteredCards = filterCards(initialCards, filterName);
-      console.log(filteredCards);
       filmListContainer.innerHTML = ``;
       fillTheCards(filmListContainer, filteredCards);
+      unrenderStatistic();
     };
 
-    mainNavigationContainer.insertBefore(filterComponent.render(), mainNavigationAdditionalItem);
+    mainNavigationContainer.insertBefore(filterComponent.render(), statItem);
   }
 };
 
@@ -108,6 +129,8 @@ renderFilters();
 fillTheCards(filmListContainer, initialCards);
 
 for (const el of filmListExtra) {
-  const extraCards = getCards(NUMBER_OF_TOPCARDS)
+  const extraCards = getCards(NUMBER_OF_TOPCARDS);
   fillTheCards(el, extraCards);
 }
+
+statItem.addEventListener(`click`, renderStatistic);
