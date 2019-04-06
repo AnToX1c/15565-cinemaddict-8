@@ -17,15 +17,35 @@ class FilmCard extends Component {
     this._isFavorite = data.isFavorite;
 
     this._onCommentsClick = null;
+    this._onAddToWatchList = null;
+    this._onMarkAsWatched = null;
     this._onButtonClick = this._onButtonClick.bind(this);
+    this._onAddToWatchListClick = this._onAddToWatchListClick.bind(this);
+    this._onMarkAsWatchedClick = this._onMarkAsWatchedClick.bind(this);
   }
 
   _onButtonClick() {
     return typeof this._onCommentsClick === `function` && this._onCommentsClick();
   }
+  _onAddToWatchListClick(evt) {
+    evt.preventDefault();
+    return typeof this._onAddToWatchList === `function` && this._onAddToWatchList();
+  }
+  _onMarkAsWatchedClick(evt) {
+    evt.preventDefault();
+    return typeof this._onMarkAsWatched === `function` && this._onMarkAsWatched();
+  }
 
   set onCommentsClick(fn) {
     this._onCommentsClick = fn;
+  }
+
+  set onAddToWatchList(fn) {
+    this._onAddToWatchList = fn;
+  }
+
+  set onMarkAsWatched(fn) {
+    this._onMarkAsWatched = fn;
   }
 
   get template() {
@@ -50,13 +70,15 @@ class FilmCard extends Component {
   }
 
   bind() {
-    this._element.querySelector(`button.film-card__comments`)
-      .addEventListener(`click`, this._onButtonClick.bind(this));
+    this._element.querySelector(`button.film-card__comments`).addEventListener(`click`, this._onButtonClick.bind(this));
+    this._element.querySelector(`.film-card__controls-item--add-to-watchlist`).addEventListener(`click`, this._onAddToWatchListClick.bind(this));
+    this._element.querySelector(`.film-card__controls-item--mark-as-watched`).addEventListener(`click`, this._onMarkAsWatchedClick.bind(this));
   }
 
   unbind() {
-    this._element.querySelector(`button.film-card__comments`)
-        .removeEventListener(`click`, this._onButtonClick);
+    this._element.querySelector(`button.film-card__comments`).removeEventListener(`click`, this._onButtonClick);
+    this._element.querySelector(`.film-card__controls-item--add-to-watchlist`).removeEventListener(`click`, this._onAddToWatchListClick);
+    this._element.querySelector(`.film-card__controls-item--mark-as-watched`).removeEventListener(`click`, this._onMarkAsWatchedClick);
   }
 
   update(data) {
