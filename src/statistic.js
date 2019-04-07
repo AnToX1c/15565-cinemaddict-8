@@ -15,17 +15,19 @@ class Statistic extends Component {
   }
 
   _countTotalDuration(array) {
-    return array.map((el) => el.duration).reduce((total, el) => total + el);
+    return array.map((el) => el.runtime).reduce((total, el) => total + el);
   }
 
   _countGenres(array) {
     return array.reduce(function (acc, curr) {
-      if (curr !== undefined) {
-        if (typeof acc[curr] === `undefined`) {
-          acc[curr] = 1;
-        } else {
-          acc[curr] += 1;
-        }
+      if (curr.length > 0) {
+        curr.forEach((value) => {
+          if (acc.hasOwnProperty(value)) {
+            acc[value]++;
+          } else {
+            acc[value] = 1;
+          }
+        });
       }
       return acc;
     }, []);

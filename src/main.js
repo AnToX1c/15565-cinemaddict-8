@@ -1,13 +1,14 @@
 import Filter from './filter.js';
 import getFilter from './get-filter.js';
-import getFilmCard from './get-film-card.js';
 import FilmCard from './film-card.js';
 import FilmPopup from './film-popup.js';
 import Statistic from './statistic.js';
+import API from './api.js';
 
-const NUMBER_OF_CARDS = 7;
 const NUMBER_OF_TOPCARDS = 2;
 const NUMBER_OF_FILTERS = 4;
+const AUTHORIZATION = `Basic dXNeo0w590ik29889aZAo=${Math.random()}`;
+const END_POINT = `https://es8-demo-srv.appspot.com/moowle`;
 const mainContainer = document.querySelector(`.main`);
 const mainNavigationContainer = mainContainer.querySelector(`.main-navigation`);
 const statItem = mainNavigationContainer.querySelector(`.main-navigation__item--additional`);
@@ -15,16 +16,9 @@ const filmsContainer = mainContainer.querySelector(`.films`);
 const filmListContainer = mainContainer.querySelector(`.films-list__container`);
 const filmListExtra = mainContainer.querySelectorAll(`.films-list--extra .films-list__container`);
 let statisticContainer = null;
+let initialCards = [];
 
-const getCards = (amount) => {
-  const allCards = [];
-  for (let i = 0; i < amount; i++) {
-    allCards.push(getFilmCard());
-  }
-  return allCards;
-};
-
-const initialCards = getCards(NUMBER_OF_CARDS);
+const api = new API({endPoint: END_POINT, authorization: AUTHORIZATION});
 
 const fillTheCards = (destination, cards) => {
   for (const el of cards) {
@@ -49,8 +43,10 @@ const fillTheCards = (destination, cards) => {
       el.isWatchlist = newObject.isWatchlist === `on`;
       el.isWatched = newObject.isWatched === `on`;
       el.isFavorite = newObject.isFavorite === `on`;
-      el.comment = newObject.comment;
-      el.score = newObject.score;
+      if (newObject.comment.comment) {
+        el.comments.push(newObject.comment);
+      }
+      el.personalRating = newObject.personalRating;
 
       filmCard.update(el);
       filmPopup.unrender();
@@ -75,19 +71,36 @@ const unrenderStatistic = () => {
   filmsContainer.classList.remove(`visually-hidden`);
 };
 
+const filterCards = (cards, filterName) => {
+  switch (filterName.trim()) {
+    case `All movies`:
+      return cards;
+
+    case `Watchlist`:
+      return cards.filter((it) => it.isWatchlist);
+
+    case `History`:
+      return cards.filter((it) => it.isWatched);
+
+    case `Favorites`:
+      return cards.filter((it) => it.isFavorite);
+  }
+  return cards;
+};
+
 const getFilters = () => {
   const filters = [];
   for (let i = 0; i < NUMBER_OF_FILTERS; i++) {
     filters.push(getFilter(i));
+    filters[i].amount = filterCards(initialCards, filters[i].caption).length;
   }
   filters[0].amount = ``;
   filters[0].isActive = true;
   return filters;
 };
 
-const filters = getFilters();
-
 const renderFilters = () => {
+  const filters = getFilters();
   for (const filter of filters) {
     const filterComponent = new Filter(filter);
 
@@ -108,29 +121,19 @@ const renderFilters = () => {
   }
 };
 
-const filterCards = (cards, filterName) => {
-  switch (filterName) {
-    case `All movies`:
-      return cards;
-
-    case `Watchlist `:
-      return cards.filter((it) => it.isWatchlist);
-
-    case `History `:
-      return cards.filter((it) => it.isWatched);
-
-    case `Favorites `:
-      return cards.filter((it) => it.isFavorite);
+const fillTheExtraCards = () => {
+  for (const el of filmListExtra) {
+    const extraCards = initialCards.slice(0, NUMBER_OF_TOPCARDS);
+    fillTheCards(el, extraCards);
   }
-  return cards;
 };
 
-renderFilters();
-fillTheCards(filmListContainer, initialCards);
-
-for (const el of filmListExtra) {
-  const extraCards = getCards(NUMBER_OF_TOPCARDS);
-  fillTheCards(el, extraCards);
-}
+api.getFilms()
+  .then((films) => {
+    initialCards = films;
+    renderFilters();
+    fillTheCards(filmListContainer, films);
+    fillTheExtraCards(); // временная, отрисовывает фильмы в дополнительные разделы
+  });
 
 statItem.addEventListener(`click`, renderStatistic);

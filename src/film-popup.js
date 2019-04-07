@@ -7,25 +7,26 @@ const ENTER_KEYCODE = 13;
 class FilmPopup extends Component {
   constructor(data) {
     super();
+    this._id = data.id;
     this._title = data.title;
     this._originalTitle = data.originalTitle;
+    this._totalRating = data.totalRating;
+    this._poster = data.poster;
+    this._ageRating = data.ageRating;
     this._director = data.director;
-    this._writer = data.writer;
+    this._writers = data.writers;
     this._actors = data.actors;
-    this._description = data.description;
-    this._duration = data.duration;
-    this._images = data.images;
-    this._rating = data.rating;
+    this._release = data.release;
+    this._releaseCountry = data.releaseCountry;
+    this._runtime = data.runtime;
     this._genre = data.genre;
-    this._ageLimit = data.ageLimit;
-    this._releaseDate = data.releaseDate;
-    this._commentsNumber = data.commentsNumber;
-    this._comment = new Set();
-    this._score = data.score;
-    this._country = data.country;
+    this._description = data.description;
+    this._personalRating = data.personalRating;
+    this._comments = data.comments; // добавить emojies в разметку
     this._isWatchlist = data.isWatchlist;
     this._isWatched = data.isWatched;
     this._isFavorite = data.isFavorite;
+    this._watchingDate = data.watchingDate;
 
     this._onClick = null;
     this._onSubmit = null;
@@ -47,10 +48,14 @@ class FilmPopup extends Component {
       isWatchlist: this._isWatchlist,
       isWatched: this._isWatched,
       isFavorite: this._isFavorite,
-      comment: this._comment,
-      score: ``,
+      comment: {
+        author: `user`,
+        emotion: `neutral-face`,
+        comment: ``,
+        date: new Date()
+      },
+      personalRating: this._personalRating,
     };
-
     const filmPopupMapper = FilmPopup.createMapper(entry);
 
     for (const pair of formData.entries()) {
@@ -59,7 +64,6 @@ class FilmPopup extends Component {
         filmPopupMapper[property](value);
       }
     }
-
     return entry;
   }
 
@@ -79,17 +83,20 @@ class FilmPopup extends Component {
     this._isWatchlist = data.isWatchlist === `on`;
     this._isWatched = data.isWatched === `on`;
     this._isFavorite = data.isFavorite === `on`;
-    this._comment = data.comment;
-    this._score = data.score;
+    if (data.comment.comment) {
+      this._comments.push(data.comment);
+    }
+    this._personalRating = data.personalRating;
   }
 
   static createMapper(target) {
     return {
-      watchlist: (value) => (target.isWatchlist = value),
-      watched: (value) => (target.isWatched = value),
-      favorite: (value) => (target.isFavorite = value),
-      comment: (value) => (target.comment.add(value)),
-      score: (value) => (target.score = parseInt(value, 10))
+      'watchlist': (value) => (target.isWatchlist = value),
+      'watched': (value) => (target.isWatched = value),
+      'favorite': (value) => (target.isFavorite = value),
+      'comment': (value) => (target.comment.comment = value),
+      'comment-emoji': (value) => (target.comment.emotion = value),
+      'score': (value) => (target.personalRating = parseInt(value, 10))
     };
   }
 
@@ -109,9 +116,9 @@ class FilmPopup extends Component {
                 </div>
                 <div class="film-details__info-wrap">
                   <div class="film-details__poster">
-                    <img class="film-details__poster-img" src=${this._images} alt=${this._title}>
+                    <img class="film-details__poster-img" src=${this._poster} alt=${this._title}>
 
-                    <p class="film-details__age">${this._ageLimit}</p>
+                    <p class="film-details__age">${this._ageRating}</p>
                   </div>
 
                   <div class="film-details__info">
@@ -122,8 +129,8 @@ class FilmPopup extends Component {
                       </div>
 
                       <div class="film-details__rating">
-                        <p class="film-details__total-rating">${this._rating}</p>
-                        <p class="film-details__user-rating">Your rate ${this._score}</p>
+                        <p class="film-details__total-rating">${this._totalRating}</p>
+                        <p class="film-details__user-rating">Your rate ${this._personalRating}</p>
                       </div>
                     </div>
 
@@ -134,7 +141,7 @@ class FilmPopup extends Component {
                       </tr>
                       <tr class="film-details__row">
                         <td class="film-details__term">Writers</td>
-                        <td class="film-details__cell">${this._writer}</td>
+                        <td class="film-details__cell">${this._writers.join(`, `)}</td>
                       </tr>
                       <tr class="film-details__row">
                         <td class="film-details__term">Actors</td>
@@ -146,23 +153,21 @@ class FilmPopup extends Component {
                       </tr>
                       <tr class="film-details__row">
                         <td class="film-details__term">Runtime</td>
-                        <td class="film-details__cell">${this._duration} min</td>
+                        <td class="film-details__cell">${this._runtime} min</td>
                       </tr>
                       <tr class="film-details__row">
                         <td class="film-details__term">Country</td>
-                        <td class="film-details__cell">${this._country}</td>
+                        <td class="film-details__cell">${this._releaseCountry}</td>
                       </tr>
                       <tr class="film-details__row">
                         <td class="film-details__term">Genres</td>
                         <td class="film-details__cell">
-                          <span class="film-details__genre">${this._genre}</span>
-                          <span class="film-details__genre">${this._genre}</span>
-                          <span class="film-details__genre">${this._genre}</span></td>
+                        ${this._genre.map((genre) => (`<span class="film-details__genre">${genre}</span>`)).join(` `)}</td>
                       </tr>
                     </table>
 
                     <p class="film-details__film-description">
-                      ${this._description.join(` `)}
+                      ${this._description}
                     </p>
                   </div>
                 </div>
@@ -179,19 +184,19 @@ class FilmPopup extends Component {
                 </section>
 
                 <section class="film-details__comments-wrap">
-                  <h3 class="film-details__comments-title">Comment${this._commentsNumber > 1 ? `s` : ``} <span class="film-details__comments-count">${this._comment.length > 0 ? this._comment.length : this._commentsNumber}</span></h3>
+                  <h3 class="film-details__comments-title">Comment${this._comments.length > 1 ? `s` : ``} <span class="film-details__comments-count">${this._comments.length}</span></h3>
 
                   <ul class="film-details__comments-list">
-                    ${(Array.from(this._comment).map((comm) => (`<li class="film-details__comment">
+                    ${this._comments.map((comm) => (`<li class="film-details__comment">
                       <span class="film-details__comment-emoji">😴</span>
                       <div>
-                        <p class="film-details__comment-text">${comm}</p>
+                        <p class="film-details__comment-text">${comm.comment}</p>
                         <p class="film-details__comment-info">
-                          <span class="film-details__comment-author">Tim Macoveev</span>
-                          <span class="film-details__comment-day">3 days ago</span>
+                          <span class="film-details__comment-author">${comm.author}</span>
+                          <span class="film-details__comment-day">${moment(comm.date).fromNow()}</span>
                         </p>
                       </div>
-                    </li>`).trim())).join(``)}
+                    </li>`).trim()).join(``)}
                   </ul>
 
                   <div class="film-details__new-comment">
@@ -224,7 +229,7 @@ class FilmPopup extends Component {
 
                   <div class="film-details__user-score">
                     <div class="film-details__user-rating-poster">
-                      <img src=${this._images} alt="film-poster" class="film-details__user-rating-img">
+                      <img src=${this._poster} alt="film-poster" class="film-details__user-rating-img">
                     </div>
 
                     <section class="film-details__user-rating-inner">
@@ -233,31 +238,31 @@ class FilmPopup extends Component {
                       <p class="film-details__user-rating-feelings">How you feel it?</p>
 
                       <div class="film-details__user-rating-score">
-                        <input type="radio" name="score" class="film-details__user-rating-input visually-hidden" value="1" id="rating-1" ${this._score === 1 ? `checked` : ``}>
+                        <input type="radio" name="score" class="film-details__user-rating-input visually-hidden" value="1" id="rating-1" ${this._personalRating === 1 ? `checked` : ``}>
                         <label class="film-details__user-rating-label" for="rating-1">1</label>
 
-                        <input type="radio" name="score" class="film-details__user-rating-input visually-hidden" value="2" id="rating-2" ${this._score === 2 ? `checked` : ``}>
+                        <input type="radio" name="score" class="film-details__user-rating-input visually-hidden" value="2" id="rating-2" ${this._personalRating === 2 ? `checked` : ``}>
                         <label class="film-details__user-rating-label" for="rating-2">2</label>
 
-                        <input type="radio" name="score" class="film-details__user-rating-input visually-hidden" value="3" id="rating-3" ${this._score === 3 ? `checked` : ``}>
+                        <input type="radio" name="score" class="film-details__user-rating-input visually-hidden" value="3" id="rating-3" ${this._personalRating === 3 ? `checked` : ``}>
                         <label class="film-details__user-rating-label" for="rating-3">3</label>
 
-                        <input type="radio" name="score" class="film-details__user-rating-input visually-hidden" value="4" id="rating-4" ${this._score === 4 ? `checked` : ``}>
+                        <input type="radio" name="score" class="film-details__user-rating-input visually-hidden" value="4" id="rating-4" ${this._personalRating === 4 ? `checked` : ``}>
                         <label class="film-details__user-rating-label" for="rating-4">4</label>
 
-                        <input type="radio" name="score" class="film-details__user-rating-input visually-hidden" value="5" id="rating-5" ${this._score === 5 ? `checked` : ``}>
+                        <input type="radio" name="score" class="film-details__user-rating-input visually-hidden" value="5" id="rating-5" ${this._personalRating === 5 ? `checked` : ``}>
                         <label class="film-details__user-rating-label" for="rating-5">5</label>
 
-                        <input type="radio" name="score" class="film-details__user-rating-input visually-hidden" value="6" id="rating-6" ${this._score === 6 ? `checked` : ``}>
+                        <input type="radio" name="score" class="film-details__user-rating-input visually-hidden" value="6" id="rating-6" ${this._personalRating === 6 ? `checked` : ``}>
                         <label class="film-details__user-rating-label" for="rating-6">6</label>
 
-                        <input type="radio" name="score" class="film-details__user-rating-input visually-hidden" value="7" id="rating-7" ${this._score === 7 ? `checked` : ``}>
+                        <input type="radio" name="score" class="film-details__user-rating-input visually-hidden" value="7" id="rating-7" ${this._personalRating === 7 ? `checked` : ``}>
                         <label class="film-details__user-rating-label" for="rating-7">7</label>
 
-                        <input type="radio" name="score" class="film-details__user-rating-input visually-hidden" value="8" id="rating-8" ${this._score === 8 ? `checked` : ``}>
+                        <input type="radio" name="score" class="film-details__user-rating-input visually-hidden" value="8" id="rating-8" ${this._personalRating === 8 ? `checked` : ``}>
                         <label class="film-details__user-rating-label" for="rating-8">8</label>
 
-                        <input type="radio" name="score" class="film-details__user-rating-input visually-hidden" value="9" id="rating-9" ${this._score === 9 ? `checked` : ``}>
+                        <input type="radio" name="score" class="film-details__user-rating-input visually-hidden" value="9" id="rating-9" ${this._personalRating === 9 ? `checked` : ``}>
                         <label class="film-details__user-rating-label" for="rating-9">9</label>
                       </div>
                     </section>
