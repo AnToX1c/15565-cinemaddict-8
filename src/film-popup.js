@@ -30,7 +30,9 @@ class FilmPopup extends Component {
 
     this._onClick = null;
     this._onSubmit = null;
+    this._onRatingClick = null;
     this._onCloseButtonClick = this._onCloseButtonClick.bind(this);
+    this._onUserRatingClick = this._onUserRatingClick.bind(this);
     this._onPopupEscPress = this._onPopupEscPress.bind(this);
     this._onDocumentCtrlEnterPress = this._onDocumentCtrlEnterPress.bind(this);
   }
@@ -41,6 +43,10 @@ class FilmPopup extends Component {
 
   _onPopupEscPress(evt) {
     return evt.keyCode === ESC_KEYCODE && typeof this._onClick === `function` && this._onClick();
+  }
+
+  _onUserRatingClick() {
+    return typeof this._onRatingClick === `function` && this._onRatingClick();
   }
 
   _processForm(formData) {
@@ -56,6 +62,7 @@ class FilmPopup extends Component {
       },
       personalRating: this._personalRating,
     };
+
     const filmPopupMapper = FilmPopup.createMapper(entry);
 
     for (const pair of formData.entries()) {
@@ -89,6 +96,19 @@ class FilmPopup extends Component {
     this._personalRating = data.personalRating;
   }
 
+  shake() {
+    this._element.style.border = `solid red 5px`;
+    setTimeout(() => {
+      this._element.style.border = ``;
+    }, 2000);
+    const keyframe = [
+      {transform: `translateX(0)`},
+      {transform: `translateX(-5px)`},
+      {transform: `translateX(5px)`}
+    ];
+    this._element.animate(keyframe, {duration: 600, iterations: 3});
+  }
+
   static createMapper(target) {
     return {
       'watchlist': (value) => (target.isWatchlist = value),
@@ -106,6 +126,10 @@ class FilmPopup extends Component {
 
   set onSubmit(fn) {
     this._onSubmit = fn;
+  }
+
+  set onUserRatingClick(fn) {
+    this._onRatingClick = fn;
   }
 
   get template() {
@@ -277,6 +301,7 @@ class FilmPopup extends Component {
     document.addEventListener(`keydown`, this._onDocumentCtrlEnterPress);
     this._element.querySelector(`.film-details__close-btn`)
       .addEventListener(`click`, this._onCloseButtonClick);
+    this._element.querySelector(`.film-details__user-rating-score`).addEventListener(`click`, this._onUserRatingClick);
   }
 
   unbind() {
@@ -284,6 +309,8 @@ class FilmPopup extends Component {
     document.removeEventListener(`keydown`, this._onDocumentCtrlEnterPress);
     this._element.querySelector(`.film-details__close-btn`)
         .removeEventListener(`click`, this._onCloseButtonClick);
+    this._element.querySelector(`.film-details__user-rating-score`)
+        .removeEventListener(`click`, this._onUserRatingClick);
   }
 }
 

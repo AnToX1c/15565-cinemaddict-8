@@ -4,7 +4,7 @@ const Method = {
   GET: `GET`,
   POST: `POST`,
   PUT: `PUT`,
-  DELETE: `DELETE`
+  // DELETE: `DELETE`
 };
 
 const checkStatus = (response) => {
@@ -50,12 +50,12 @@ const API = class {
       headers: new Headers({'Content-Type': `application/json`})
     })
       .then(toJSON)
-      .then(ModelFilm.parseFilms);
+      .then(ModelFilm.parseFilm);
   }
 
-  deleteFilm({id}) {
-    return this._load({url: `movies/${id}`, method: Method.DELETE});
-  }
+  // deleteFilm({id}) {
+  //   return this._load({url: `movies/${id}`, method: Method.DELETE});
+  // }
 
   _load({url, method = Method.GET, body = null, headers = new Headers()}) {
     headers.append(`Authorization`, this._authorization);

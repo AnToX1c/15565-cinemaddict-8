@@ -7,12 +7,13 @@ import API from './api.js';
 
 const NUMBER_OF_TOPCARDS = 2;
 const NUMBER_OF_FILTERS = 4;
-const AUTHORIZATION = `Basic dXNeo0w590ik29889aZAo=${Math.random()}`;
+const AUTHORIZATION = `Basic dXNeo0w590ik29889aZAo=0.1313233792199915`;
 const END_POINT = `https://es8-demo-srv.appspot.com/moowle`;
 const mainContainer = document.querySelector(`.main`);
 const mainNavigationContainer = mainContainer.querySelector(`.main-navigation`);
 const statItem = mainNavigationContainer.querySelector(`.main-navigation__item--additional`);
 const filmsContainer = mainContainer.querySelector(`.films`);
+const filmsTitleContainer = mainContainer.querySelector(`.films-list__title`);
 const filmListContainer = mainContainer.querySelector(`.films-list__container`);
 const filmListExtra = mainContainer.querySelectorAll(`.films-list--extra .films-list__container`);
 let statisticContainer = null;
@@ -21,6 +22,8 @@ let initialCards = [];
 const api = new API({endPoint: END_POINT, authorization: AUTHORIZATION});
 
 const fillTheCards = (destination, cards) => {
+  filmsTitleContainer.classList.add(`visually-hidden`);
+
   for (const el of cards) {
     const filmCard = new FilmCard(el);
     const filmPopup = new FilmPopup(el);
@@ -47,9 +50,17 @@ const fillTheCards = (destination, cards) => {
         el.comments.push(newObject.comment);
       }
       el.personalRating = newObject.personalRating;
+      // block();
 
-      filmCard.update(el);
-      filmPopup.unrender();
+      // block();
+      api.updateFilm({id: el.id, data: el.toRAW()})
+        .then((updatedFilm) => {
+          filmCard.update(updatedFilm);
+          filmPopup.unrender();
+        })
+        .catch(() => {
+          filmPopup.shake();
+        });
     };
   }
 };
@@ -128,12 +139,19 @@ const fillTheExtraCards = () => {
   }
 };
 
+filmsTitleContainer.classList.remove(`visually-hidden`);
+filmsTitleContainer.innerHTML = `Loading movies...`;
+
 api.getFilms()
   .then((films) => {
     initialCards = films;
     renderFilters();
     fillTheCards(filmListContainer, films);
     fillTheExtraCards(); // временная, отрисовывает фильмы в дополнительные разделы
+  })
+  .catch(() => {
+    filmsTitleContainer.classList.remove(`visually-hidden`);
+    filmsTitleContainer.innerHTML = `Something went wrong while loading movies. Check your connection or try again later`;
   });
 
 statItem.addEventListener(`click`, renderStatistic);

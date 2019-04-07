@@ -22,6 +22,37 @@ class ModelFilm {
     this.watchingDate = new Date(data[`user_details`][`watching_date`]);
   }
 
+  toRAW() {
+    return {
+      'id': this.id,
+      'film_info': {
+        'title': this.title,
+        'alternative_title': this.originalTitle,
+        'total_rating': this.totalRating,
+        'poster': this.poster,
+        'age_rating': this.ageRating,
+        'director': this.director,
+        'writers': this.writers,
+        'actors': this.actors,
+        'release': {
+          'date': this.release,
+          'release_country': this.releaseCountry
+        },
+        'runtime': this.runtime,
+        'genre': this.genre,
+        'description': this.description
+      },
+      'user_details': {
+        'personal_rating': this.personalRating,
+        'watchlist': this.isWatchlist,
+        'already_watched': this.isWatched,
+        'favorite': this.isFavorite,
+        'watching_date': this.watchingDate
+      },
+      'comments': this.comments
+    };
+  }
+
   static parseFilm(data) {
     return new ModelFilm(data);
   }
