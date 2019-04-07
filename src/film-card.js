@@ -5,13 +5,14 @@ class FilmCard extends Component {
   constructor(data) {
     super();
     this._title = data.title;
+    this._totalRating = data.totalRating;
+    this._poster = data.poster;
     this._description = data.description;
-    this._duration = data.duration;
-    this._images = data.images;
-    this._rating = data.rating;
+    this._release = data.release;
+    this._runtime = data.runtime;
     this._genre = data.genre;
-    this._releaseDate = data.releaseDate;
-    this._commentsNumber = data.commentsNumber;
+    this._personalRating = data.personalRating;
+    this._comments = data.comments;
     this._isWatchlist = data.isWatchlist;
     this._isWatched = data.isWatched;
     this._isFavorite = data.isFavorite;
@@ -51,15 +52,15 @@ class FilmCard extends Component {
   get template() {
     return `<article class="film-card">
           <h3 class="film-card__title">${this._title}</h3>
-          <p class="film-card__rating">${this._rating}</p>
+          <p class="film-card__rating">${this._totalRating}</p>
           <p class="film-card__info">
-            <span class="film-card__year">${moment(this._releaseDate).format(`YYYY`)}</span>
-            <span class="film-card__duration">${moment.duration({"minutes": this._duration}).hours()}h&nbsp;${moment.duration({"minutes": this._duration}).minutes()}m</span>
+            <span class="film-card__year">${moment(this._release).format(`YYYY`)}</span>
+            <span class="film-card__duration">${moment.duration({"minutes": this._runtime}).hours()}h&nbsp;${moment.duration({"minutes": this._runtime}).minutes()}m</span>
             <span class="film-card__genre">${this._genre}</span>
           </p>
-          <img src=${this._images} alt="" class="film-card__poster">
-          <p class="film-card__description">${this._description.join(` `)}</p>
-          <button class="film-card__comments">${this._commentsNumber} comment${this._commentsNumber > 1 ? `s` : ``}</button>
+          <img src=${this._poster} alt="" class="film-card__poster">
+          <p class="film-card__description">${this._description}</p>
+          <button class="film-card__comments">${this._comments.length} comment${this._comments.length > 1 ? `s` : ``}</button>
 
           <form class="film-card__controls">
             <button class="film-card__controls-item button film-card__controls-item--add-to-watchlist"><!--Add to watchlist--> WL</button>
@@ -85,8 +86,8 @@ class FilmCard extends Component {
     this._isWatchlist = data.isWatchlist;
     this._isWatched = data.isWatched;
     this._isFavorite = data.isFavorite;
-    this._comment = data.comment;
-    this._score = data.score;
+    this._comments = data.comments;
+    this._personalRating = data.personalRating;
   }
 }
 
