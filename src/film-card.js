@@ -78,7 +78,7 @@ class FilmCard extends Component {
           <p class="film-card__rating">${this._totalRating}</p>
           <p class="film-card__info">
             <span class="film-card__year">${moment(this._release).format(`YYYY`)}</span>
-            <span class="film-card__duration">${moment.duration({"minutes": this._runtime}).hours()}h&nbsp;${moment.duration({"minutes": this._runtime}).minutes()}m</span>
+            <span class="film-card__duration">${moment.duration({"minutes": this._runtime}).hours()}:${moment.duration({"minutes": this._runtime}).minutes()}</span>
             <span class="film-card__genre">${this._genre}</span>
           </p>
           <img src=${this._poster} alt="" class="film-card__poster">
