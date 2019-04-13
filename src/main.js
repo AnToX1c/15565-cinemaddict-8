@@ -33,11 +33,30 @@ const fillTheCards = (destination, cards) => {
     };
     filmCard.onAddToWatchList = () => {
       el.isWatchlist = !el.isWatchlist;
-      filmPopup._isWatchlist = !filmPopup._isWatchlist;
+      api.updateFilm({id: el.id, data: el.toRAW()})
+        .then((updatedFilm) => {
+          filmCard.update(updatedFilm);
+          filmPopup.update(updatedFilm);
+        })
+        .catch(() => filmCard.shake());
     };
     filmCard.onMarkAsWatched = () => {
       el.isWatched = !el.isWatched;
-      filmPopup._isWatched = !filmPopup._isWatched;
+      api.updateFilm({id: el.id, data: el.toRAW()})
+        .then((updatedFilm) => {
+          filmCard.update(updatedFilm);
+          filmPopup.update(updatedFilm);
+        })
+        .catch(() => filmCard.shake());
+    };
+    filmCard.onMarkAsFavorite = () => {
+      el.isFavorite = !el.isFavorite;
+      api.updateFilm({id: el.id, data: el.toRAW()})
+        .then((updatedFilm) => {
+          filmCard.update(updatedFilm);
+          filmPopup.update(updatedFilm);
+        })
+        .catch(() => filmCard.shake());
     };
     filmPopup.onCloseButtonClick = () => {
       filmPopup.unrender();
