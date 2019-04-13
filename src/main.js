@@ -5,7 +5,7 @@ import FilmPopup from './film-popup.js';
 import Statistic from './statistic.js';
 import API from './api.js';
 
-const NUMBER_OF_TOPCARDS = 2;
+const NUMBER_OF_EXTRACARDS = 4;
 const NUMBER_OF_FILTERS = 4;
 const AUTHORIZATION = `Basic dXNeo0w590ik29889aZAo=0.1313233792199915`;
 const END_POINT = `https://es8-demo-srv.appspot.com/moowle`;
@@ -42,6 +42,7 @@ const fillTheCards = (destination, cards) => {
     filmPopup.onCloseButtonClick = () => {
       filmPopup.unrender();
     };
+    // filmPopup.onUserRatingClick = (newPersonalRating) => {};
     filmPopup.onSubmit = (newObject) => {
       el.isWatchlist = newObject.isWatchlist === `on`;
       el.isWatched = newObject.isWatched === `on`;
@@ -56,6 +57,7 @@ const fillTheCards = (destination, cards) => {
       api.updateFilm({id: el.id, data: el.toRAW()})
         .then((updatedFilm) => {
           filmCard.update(updatedFilm);
+          filmPopup.update(updatedFilm);
           filmPopup.unrender();
         })
         .catch(() => {
@@ -132,11 +134,25 @@ const renderFilters = () => {
   }
 };
 
-const fillTheExtraCards = () => {
+const getTopRatedFilms = (films) => {
+  const filmsToSort = films.slice();
+  return filmsToSort.sort((a, b) => {
+    return b.totalRating - a.totalRating;
+  }).slice(0, NUMBER_OF_EXTRACARDS);
+};
+const getMostCommentedFilms = (films) => {
+  const filmsToSort = films.slice();
+  return filmsToSort.sort((a, b) => {
+    return b.comments.length - a.comments.length;
+  }).slice(0, NUMBER_OF_EXTRACARDS);
+};
+
+const fillTheExtraCards = (films) => {
   for (const el of filmListExtra) {
-    const extraCards = initialCards.slice(0, NUMBER_OF_TOPCARDS);
-    fillTheCards(el, extraCards);
+    el.innerHTML = ``;
   }
+  fillTheCards(filmListExtra[0], getTopRatedFilms(films));
+  fillTheCards(filmListExtra[1], getMostCommentedFilms(films));
 };
 
 filmsTitleContainer.classList.remove(`visually-hidden`);
@@ -147,7 +163,7 @@ api.getFilms()
     initialCards = films;
     renderFilters();
     fillTheCards(filmListContainer, films);
-    fillTheExtraCards(); // временная, отрисовывает фильмы в дополнительные разделы
+    fillTheExtraCards(films);
   })
   .catch(() => {
     filmsTitleContainer.classList.remove(`visually-hidden`);

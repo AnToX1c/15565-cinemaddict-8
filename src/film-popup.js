@@ -32,7 +32,7 @@ class FilmPopup extends Component {
     this._onSubmit = null;
     this._onRatingClick = null;
     this._onCloseButtonClick = this._onCloseButtonClick.bind(this);
-    this._onUserRatingClick = this._onUserRatingClick.bind(this);
+    // this._onUserRatingClick = this._onUserRatingClick.bind(this);
     this._onPopupEscPress = this._onPopupEscPress.bind(this);
     this._onDocumentCtrlEnterPress = this._onDocumentCtrlEnterPress.bind(this);
   }
@@ -43,10 +43,6 @@ class FilmPopup extends Component {
 
   _onPopupEscPress(evt) {
     return evt.keyCode === ESC_KEYCODE && typeof this._onClick === `function` && this._onClick();
-  }
-
-  _onUserRatingClick() {
-    return typeof this._onRatingClick === `function` && this._onRatingClick();
   }
 
   _processForm(formData) {
@@ -81,18 +77,14 @@ class FilmPopup extends Component {
       if (typeof this._onSubmit === `function`) {
         this._onSubmit(newData);
       }
-
-      this.update(newData);
     }
   }
 
   update(data) {
-    this._isWatchlist = data.isWatchlist === `on`;
-    this._isWatched = data.isWatched === `on`;
-    this._isFavorite = data.isFavorite === `on`;
-    if (data.comment.comment) {
-      this._comments.push(data.comment);
-    }
+    this._isWatchlist = data.isWatchlist;
+    this._isWatched = data.isWatched;
+    this._isFavorite = data.isFavorite;
+    this._comments = data.comments;
     this._personalRating = data.personalRating;
   }
 
@@ -301,7 +293,7 @@ class FilmPopup extends Component {
     document.addEventListener(`keydown`, this._onDocumentCtrlEnterPress);
     this._element.querySelector(`.film-details__close-btn`)
       .addEventListener(`click`, this._onCloseButtonClick);
-    this._element.querySelector(`.film-details__user-rating-score`).addEventListener(`click`, this._onUserRatingClick);
+    // this._element.querySelector(`.film-details__user-rating-score`).addEventListener(`click`, this._onUserRatingClick);
   }
 
   unbind() {
@@ -309,8 +301,8 @@ class FilmPopup extends Component {
     document.removeEventListener(`keydown`, this._onDocumentCtrlEnterPress);
     this._element.querySelector(`.film-details__close-btn`)
         .removeEventListener(`click`, this._onCloseButtonClick);
-    this._element.querySelector(`.film-details__user-rating-score`)
-        .removeEventListener(`click`, this._onUserRatingClick);
+    // this._element.querySelector(`.film-details__user-rating-score`)
+    //     .removeEventListener(`click`, this._onUserRatingClick);
   }
 }
 
