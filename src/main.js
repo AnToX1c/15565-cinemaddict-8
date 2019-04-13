@@ -4,12 +4,15 @@ import FilmCard from './film-card.js';
 import FilmPopup from './film-popup.js';
 import Statistic from './statistic.js';
 import API from './api.js';
+import SearchField from './search.js';
 
 const NUMBER_OF_EXTRACARDS = 4;
 const NUMBER_OF_FILTERS = 4;
 const NUMBER_SHOW_MORE_STEPS = 5;
 const AUTHORIZATION = `Basic dXNeo0w590ik29889aZAo=0.1413233792199915`;
 const END_POINT = `https://es8-demo-srv.appspot.com/moowle`;
+const header = document.querySelector(`.header`);
+const headerProfile = header.querySelector(`.header__profile`);
 const mainContainer = document.querySelector(`.main`);
 const mainNavigationContainer = mainContainer.querySelector(`.main-navigation`);
 const statItem = mainNavigationContainer.querySelector(`.main-navigation__item--additional`);
@@ -194,6 +197,19 @@ const fillTheExtraCards = (films) => {
   fillTheCards(filmListExtra[1], getMostCommentedFilms(films));
 };
 
+const renderSearch = () => {
+  const searchComponent = new SearchField();
+  header.insertBefore(searchComponent.render(), headerProfile);
+  searchComponent.onInput = (searchInput) => {
+    showMoreButton.classList.remove(`visually-hidden`);
+    numberOfVisibleCards = NUMBER_SHOW_MORE_STEPS;
+    isFiltered = true;
+    filteredCards = initialCards.filter((it) => it.title.toLowerCase().includes(searchInput.toLowerCase()));
+    fillTheCards(filmListContainer, filteredCards.slice(0, numberOfVisibleCards));
+  };
+};
+
+renderSearch();
 filmsTitleContainer.classList.remove(`visually-hidden`);
 filmsTitleContainer.innerHTML = `Loading movies...`;
 
