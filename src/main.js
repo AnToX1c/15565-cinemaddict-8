@@ -11,6 +11,11 @@ const NUMBER_OF_FILTERS = 4;
 const NUMBER_SHOW_MORE_STEPS = 5;
 const AUTHORIZATION = `Basic dXNeo0w590ik29889aZAo=0.1413233792199915`;
 const END_POINT = `https://es8-demo-srv.appspot.com/moowle`;
+const USERRANKS = {
+  '1': `novice`,
+  '2': `fan`,
+  '3': `movie buff`
+};
 const header = document.querySelector(`.header`);
 const headerProfile = header.querySelector(`.header__profile`);
 const mainContainer = document.querySelector(`.main`);
@@ -55,6 +60,7 @@ const fillTheCards = (destination, cards) => {
         .then((updatedFilm) => {
           filmCard.update(updatedFilm);
           filmPopup.update(updatedFilm);
+          renderUserRank();
         })
         .catch(() => filmCard.shake());
     };
@@ -87,6 +93,7 @@ const fillTheCards = (destination, cards) => {
           filmCard.update(updatedFilm);
           filmPopup.update(updatedFilm);
           filmPopup.unrender();
+          renderUserRank();
         })
         .catch(() => {
           filmPopup.shake();
@@ -209,6 +216,22 @@ const renderSearch = () => {
   };
 };
 
+const renderUserRank = () => {
+  const getUserTank = () => {
+    const amountWatchedFilms = filterCards(initialCards, `History`).length;
+    if (amountWatchedFilms > 1 && amountWatchedFilms <= 10) {
+      return USERRANKS[1];
+    } else if (amountWatchedFilms > 10 && amountWatchedFilms < 20) {
+      return USERRANKS[2];
+    } else if (amountWatchedFilms >= 20) {
+      return USERRANKS[3];
+    } else {
+      return ``;
+    }
+  };
+  headerProfile.innerText = getUserTank();
+};
+
 renderSearch();
 filmsTitleContainer.classList.remove(`visually-hidden`);
 filmsTitleContainer.innerHTML = `Loading movies...`;
@@ -219,6 +242,7 @@ api.getFilms()
     renderFilters();
     fillTheCards(filmListContainer, films.slice(0, numberOfVisibleCards));
     fillTheExtraCards(films);
+    renderUserRank();
   })
   .catch(() => {
     filmsTitleContainer.classList.remove(`visually-hidden`);
