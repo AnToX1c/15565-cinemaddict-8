@@ -105,13 +105,16 @@ const fillTheCards = (destination, cards) => {
 const renderStatistic = () => {
   const watchedFilms = initialCards.filter((it) => it.isWatched);
   const statisticComponent = new Statistic(watchedFilms);
-  mainContainer.appendChild(statisticComponent.render());
+  const statisticElement = statisticComponent.render();
+  mainContainer.appendChild(statisticElement);
   filmsContainer.classList.add(`visually-hidden`);
-  statisticContainer = mainContainer.querySelector(`.statistic`);
-  statisticContainer.querySelector(`.statistic__filters`).classList.remove(`visually-hidden`);
+  statisticComponent.onFilterClick = (newElement) => {
+    mainContainer.appendChild(newElement);
+  };
 };
 
 const unrenderStatistic = () => {
+  statisticContainer = mainContainer.querySelector(`.statistic`);
   if (statisticContainer) {
     statisticContainer.parentNode.removeChild(statisticContainer);
     statisticContainer = null;
