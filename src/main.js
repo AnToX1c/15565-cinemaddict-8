@@ -6,7 +6,7 @@ import Statistic from './statistic.js';
 import API from './api.js';
 import SearchField from './search.js';
 
-const NUMBER_OF_EXTRACARDS = 4;
+const NUMBER_OF_EXTRACARDS = 2;
 const NUMBER_OF_FILTERS = 4;
 const NUMBER_SHOW_MORE_STEPS = 5;
 const AUTHORIZATION = `Basic dXNeo0w590ik29889aZAo=0.1413233792199915`;
@@ -26,6 +26,7 @@ const filmsTitleContainer = filmsContainer.querySelector(`.films-list__title`);
 const filmListContainer = filmsContainer.querySelector(`.films-list__container`);
 const filmListExtra = filmsContainer.querySelectorAll(`.films-list--extra .films-list__container`);
 const showMoreButton = filmsContainer.querySelector(`.films-list__show-more`);
+const footerStatistic = document.querySelector(`.footer__statistics p`);
 let numberOfVisibleCards = NUMBER_SHOW_MORE_STEPS;
 let statisticContainer = null;
 let initialCards = [];
@@ -235,6 +236,10 @@ const renderUserRank = () => {
   headerProfile.innerText = getUserTank();
 };
 
+const renderFooterStatistic = () => {
+  footerStatistic.textContent = `${initialCards.length} movies inside`;
+};
+
 renderSearch();
 filmsTitleContainer.classList.remove(`visually-hidden`);
 filmsTitleContainer.innerHTML = `Loading movies...`;
@@ -246,6 +251,7 @@ api.getFilms()
     fillTheCards(filmListContainer, films.slice(0, numberOfVisibleCards));
     fillTheExtraCards(films);
     renderUserRank();
+    renderFooterStatistic();
   })
   .catch(() => {
     filmsTitleContainer.classList.remove(`visually-hidden`);
