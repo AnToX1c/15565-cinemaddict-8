@@ -9,7 +9,7 @@ import SearchField from './search.js';
 const NUMBER_OF_EXTRACARDS = 2;
 const NUMBER_OF_FILTERS = 4;
 const NUMBER_SHOW_MORE_STEPS = 5;
-const AUTHORIZATION = `Basic dXNeo0w590ik29889aZAo=0.1413233792199915`;
+const AUTHORIZATION = `Basic dXNeo0w590ik29889aZAo=0.1423233792199915`;
 const END_POINT = `https://es8-demo-srv.appspot.com/moowle`;
 const USERRANKS = {
   '1': `novice`,
@@ -77,6 +77,24 @@ const fillTheCards = (destination, cards) => {
     filmPopup.onCloseButtonClick = () => {
       filmPopup.unrender();
     };
+    filmPopup.onNewCommentSubmit = (newComment) => {
+      el.comments.push(newComment);
+      api.updateFilm({id: el.id, data: el.toRAW()})
+        .then((updatedFilm) => {
+          filmCard.update(updatedFilm);
+          filmPopup.showUpdatedComments(updatedFilm);
+        })
+        .catch(() => filmPopup.showCommentsError());
+    };
+    filmPopup.onCommentReset = () => {
+      el.comments.pop();
+      api.updateFilm({id: el.id, data: el.toRAW()})
+        .then((updatedFilm) => {
+          filmCard.update(updatedFilm);
+          filmPopup.showCommentsAfterDel(updatedFilm);
+        })
+        .catch(() => filmPopup.shake());
+    };
     filmPopup.onUserRatingClick = (newRating) => {
       el.personalRating = newRating;
       api.updateFilm({id: el.id, data: el.toRAW()})
@@ -84,7 +102,7 @@ const fillTheCards = (destination, cards) => {
           filmCard.update(updatedFilm);
           filmPopup.showUpdatedRating(updatedFilm);
         })
-        .catch(() => filmPopup.errorRating());
+        .catch(() => filmPopup.showRatingError());
     };
     filmPopup.onSubmit = (newObject) => {
       el.isWatchlist = newObject.isWatchlist === `on`;
@@ -94,9 +112,6 @@ const fillTheCards = (destination, cards) => {
         el.comments.push(newObject.comment);
       }
       el.personalRating = newObject.personalRating;
-      // block();
-
-      // block();
       api.updateFilm({id: el.id, data: el.toRAW()})
         .then((updatedFilm) => {
           filmCard.update(updatedFilm);
