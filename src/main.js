@@ -214,6 +214,11 @@ const fillTheExtraCards = (films) => {
   }
   fillTheCards(filmListExtra[0], getTopRatedFilms(films));
   fillTheCards(filmListExtra[1], getMostCommentedFilms(films));
+  for (const el of filmListExtra) {
+    el.querySelectorAll(`.film-card__controls`).forEach((element) => {
+      element.remove();
+    });
+  }
 };
 
 const renderSearch = () => {
