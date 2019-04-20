@@ -3,6 +3,12 @@ import moment from 'moment';
 
 const ESC_KEYCODE = 27;
 const ENTER_KEYCODE = 13;
+const Emojies = {
+  'sleeping': `😴`,
+  'neutral-face': `😐`,
+  'grinning': `😀`
+};
+const AUTHOR = `Anton`;
 
 class FilmPopup extends Component {
   constructor(data) {
@@ -22,7 +28,7 @@ class FilmPopup extends Component {
     this._genre = data.genre;
     this._description = data.description;
     this._personalRating = data.personalRating;
-    this._comments = data.comments; // добавить emojies в разметку
+    this._comments = data.comments;
     this._isWatchlist = data.isWatchlist;
     this._isWatched = data.isWatched;
     this._isFavorite = data.isFavorite;
@@ -31,10 +37,14 @@ class FilmPopup extends Component {
     this._onClick = null;
     this._onSubmit = null;
     this._onRatingClick = null;
+    this._onNewCommentSubmit = null;
+    this._onCommentReset = null;
     this._onCloseButtonClick = this._onCloseButtonClick.bind(this);
     this._onUserRatingClick = this._onUserRatingClick.bind(this);
     this._onPopupEscPress = this._onPopupEscPress.bind(this);
     this._onDocumentCtrlEnterPress = this._onDocumentCtrlEnterPress.bind(this);
+    this._onCommentEnterPress = this._onCommentEnterPress.bind(this);
+    this._onUndoButtonClick = this._onUndoButtonClick.bind(this);
   }
 
   _onCloseButtonClick() {
@@ -45,8 +55,10 @@ class FilmPopup extends Component {
     return evt.keyCode === ESC_KEYCODE && typeof this._onClick === `function` && this._onClick();
   }
 
-  _onUserRatingClick() {
-    return typeof this._onRatingClick === `function` && this._onRatingClick();
+  _onUserRatingClick(evt) {
+    const newPersonalRating = parseInt(evt.target.value, 10);
+    this._blockRatingInputs();
+    return typeof this._onRatingClick === `function` && this._onRatingClick(newPersonalRating);
   }
 
   _processForm(formData) {
@@ -55,7 +67,7 @@ class FilmPopup extends Component {
       isWatched: this._isWatched,
       isFavorite: this._isFavorite,
       comment: {
-        author: `user`,
+        author: AUTHOR,
         emotion: `neutral-face`,
         comment: ``,
         date: new Date()
@@ -81,18 +93,59 @@ class FilmPopup extends Component {
       if (typeof this._onSubmit === `function`) {
         this._onSubmit(newData);
       }
-
-      this.update(newData);
     }
   }
 
+  _getCommentsTemplate() {
+    return `<h3 class="film-details__comments-title">Comment${this._comments.length > 1 ? `s` : ``} <span class="film-details__comments-count">${this._comments.length}</span></h3>
+
+                  <ul class="film-details__comments-list">
+                    ${this._comments.map((comm) => (`<li class="film-details__comment">
+                      <span class="film-details__comment-emoji">${Emojies[comm.emotion]}</span>
+                      <div>
+                        <p class="film-details__comment-text">${comm.comment}</p>
+                        <p class="film-details__comment-info">
+                          <span class="film-details__comment-author">${comm.author}</span>
+                          <span class="film-details__comment-day">${moment(comm.date).fromNow()}</span>
+                        </p>
+                      </div>
+                    </li>`).trim()).join(``)}
+                  </ul>
+
+                  <div class="film-details__new-comment">
+                    <div>
+                      <label for="add-emoji" class="film-details__add-emoji-label">😐</label>
+                      <input type="checkbox" class="film-details__add-emoji visually-hidden" id="add-emoji">
+
+                      <div class="film-details__emoji-list">
+                        <input class="film-details__emoji-item visually-hidden" name="comment-emoji" type="radio" id="emoji-sleeping" value="sleeping">
+                        <label class="film-details__emoji-label" for="emoji-sleeping">😴</label>
+
+                        <input class="film-details__emoji-item visually-hidden" name="comment-emoji" type="radio" id="emoji-neutral-face" value="neutral-face">
+                        <label class="film-details__emoji-label" for="emoji-neutral-face">😐</label>
+
+                        <input class="film-details__emoji-item visually-hidden" name="comment-emoji" type="radio" id="emoji-grinning" value="grinning">
+                        <label class="film-details__emoji-label" for="emoji-grinning">😀</label>
+                      </div>
+                    </div>
+                    <label class="film-details__comment-label">
+                      <textarea class="film-details__comment-input" placeholder="← Select reaction, add comment here" name="comment"></textarea>
+                    </label>
+                  </div>`;
+  }
+
+  _renderComments() {
+    const commentContainer = this._element.querySelector(`.film-details__comments-wrap`);
+    commentContainer.innerHTML = ``;
+    commentContainer.innerHTML = this._getCommentsTemplate();
+    commentContainer.querySelector(`.film-details__comment-input`).addEventListener(`keydown`, this._onCommentEnterPress);
+  }
+
   update(data) {
-    this._isWatchlist = data.isWatchlist === `on`;
-    this._isWatched = data.isWatched === `on`;
-    this._isFavorite = data.isFavorite === `on`;
-    if (data.comment.comment) {
-      this._comments.push(data.comment);
-    }
+    this._isWatchlist = data.isWatchlist;
+    this._isWatched = data.isWatched;
+    this._isFavorite = data.isFavorite;
+    this._comments = data.comments;
     this._personalRating = data.personalRating;
   }
 
@@ -130,6 +183,14 @@ class FilmPopup extends Component {
 
   set onUserRatingClick(fn) {
     this._onRatingClick = fn;
+  }
+
+  set onNewCommentSubmit(fn) {
+    this._onNewCommentSubmit = fn;
+  }
+
+  set onCommentReset(fn) {
+    this._onCommentReset = fn;
   }
 
   get template() {
@@ -208,47 +269,13 @@ class FilmPopup extends Component {
                 </section>
 
                 <section class="film-details__comments-wrap">
-                  <h3 class="film-details__comments-title">Comment${this._comments.length > 1 ? `s` : ``} <span class="film-details__comments-count">${this._comments.length}</span></h3>
-
-                  <ul class="film-details__comments-list">
-                    ${this._comments.map((comm) => (`<li class="film-details__comment">
-                      <span class="film-details__comment-emoji">😴</span>
-                      <div>
-                        <p class="film-details__comment-text">${comm.comment}</p>
-                        <p class="film-details__comment-info">
-                          <span class="film-details__comment-author">${comm.author}</span>
-                          <span class="film-details__comment-day">${moment(comm.date).fromNow()}</span>
-                        </p>
-                      </div>
-                    </li>`).trim()).join(``)}
-                  </ul>
-
-                  <div class="film-details__new-comment">
-                    <div>
-                      <label for="add-emoji" class="film-details__add-emoji-label">😐</label>
-                      <input type="checkbox" class="film-details__add-emoji visually-hidden" id="add-emoji">
-
-                      <div class="film-details__emoji-list">
-                        <input class="film-details__emoji-item visually-hidden" name="comment-emoji" type="radio" id="emoji-sleeping" value="sleeping">
-                        <label class="film-details__emoji-label" for="emoji-sleeping">😴</label>
-
-                        <input class="film-details__emoji-item visually-hidden" name="comment-emoji" type="radio" id="emoji-neutral-face" value="neutral-face" checked>
-                        <label class="film-details__emoji-label" for="emoji-neutral-face">😐</label>
-
-                        <input class="film-details__emoji-item visually-hidden" name="comment-emoji" type="radio" id="emoji-grinning" value="grinning">
-                        <label class="film-details__emoji-label" for="emoji-grinning">😀</label>
-                      </div>
-                    </div>
-                    <label class="film-details__comment-label">
-                      <textarea class="film-details__comment-input" placeholder="← Select reaction, add comment here" name="comment"></textarea>
-                    </label>
-                  </div>
+                  ${this._getCommentsTemplate()}
                 </section>
 
                 <section class="film-details__user-rating-wrap">
                   <div class="film-details__user-rating-controls">
-                    <span class="film-details__watched-status film-details__watched-status--active">Already watched</span>
-                    <button class="film-details__watched-reset" type="button">undo</button>
+                    <span class="film-details__watched-status film-details__watched-status--active"></span>
+                    <button class="film-details__watched-reset visually-hidden" type="button">undo</button>
                   </div>
 
                   <div class="film-details__user-score">
@@ -299,9 +326,11 @@ class FilmPopup extends Component {
   bind() {
     document.addEventListener(`keydown`, this._onPopupEscPress);
     document.addEventListener(`keydown`, this._onDocumentCtrlEnterPress);
-    this._element.querySelector(`.film-details__close-btn`)
-      .addEventListener(`click`, this._onCloseButtonClick);
-    this._element.querySelector(`.film-details__user-rating-score`).addEventListener(`click`, this._onUserRatingClick);
+    this._element.querySelector(`.film-details__close-btn`).addEventListener(`click`, this._onCloseButtonClick);
+    this._element.querySelector(`.film-details__comment-input`).addEventListener(`keydown`, this._onCommentEnterPress);
+    this._element.querySelectorAll(`.film-details__user-rating-input`).forEach((element) => {
+      element.addEventListener(`click`, this._onUserRatingClick);
+    });
   }
 
   unbind() {
@@ -309,9 +338,101 @@ class FilmPopup extends Component {
     document.removeEventListener(`keydown`, this._onDocumentCtrlEnterPress);
     this._element.querySelector(`.film-details__close-btn`)
         .removeEventListener(`click`, this._onCloseButtonClick);
-    this._element.querySelector(`.film-details__user-rating-score`)
-        .removeEventListener(`click`, this._onUserRatingClick);
+    this._element.querySelector(`.film-details__comment-input`).removeEventListener(`keydown`, this._onCommentEnterPress);
+    this._element.querySelectorAll(`.film-details__user-rating-input`).forEach((element) => {
+      element.removeEventListener(`click`, this._onUserRatingClick);
+    });
   }
+
+  _blockRatingInputs() {
+    this._element.querySelectorAll(`.film-details__user-rating-input`).forEach((element) => {
+      element.disabled = true;
+      element.checked = false;
+    });
+  }
+
+  _unblockRatingInputs(newRating) {
+    newRating = newRating.toString();
+    this._element.querySelectorAll(`.film-details__user-rating-input`).forEach((element) => {
+      element.disabled = false;
+      if (element.value === newRating) {
+        element.checked = true;
+      }
+    });
+    this._element.querySelector(`.film-details__user-rating`).textContent = `Your rate ${newRating}`;
+  }
+
+  showUpdatedRating(updatedFilm) {
+    this.update(updatedFilm);
+    this._unblockRatingInputs(this._personalRating);
+  }
+
+  showRatingError() {
+    const ratingField = this._element.querySelector(`.film-details__user-rating-score`);
+    ratingField.style.backgroundColor = `red`;
+    setTimeout(() => {
+      ratingField.style.backgroundColor = ``;
+    }, 2000);
+    this.shake();
+    this._unblockRatingInputs(this._personalRating);
+  }
+
+  _onCommentEnterPress(evt) {
+    if (evt.keyCode === ENTER_KEYCODE) {
+      evt.target.disabled = true;
+      const newComment = {
+        author: AUTHOR,
+        emotion: `neutral-face`,
+        comment: evt.target.value,
+        date: moment().valueOf()
+      };
+      if (typeof this._onNewCommentSubmit === `function`) {
+        this._onNewCommentSubmit(newComment);
+      }
+    }
+  }
+
+  _onUndoButtonClick() {
+    const commentToDelete = this._comments.slice(-1)[0];
+    return typeof this._onCommentReset === `function` && this._onCommentReset(commentToDelete);
+  }
+
+  _addComment() {
+    this._renderComments();
+    this._element.querySelector(`.film-details__watched-status`).textContent = `Comment added`;
+    const undoButton = this._element.querySelector(`.film-details__watched-reset`);
+    undoButton.classList.remove(`visually-hidden`);
+    undoButton.addEventListener(`click`, this._onUndoButtonClick);
+  }
+
+  _deleteComment() {
+    this._renderComments();
+    this._element.querySelector(`.film-details__watched-status`).textContent = `Comment deleted`;
+    const undoButton = this._element.querySelector(`.film-details__watched-reset`);
+    undoButton.removeEventListener(`click`, this._onUndoButtonClick);
+    undoButton.classList.add(`visually-hidden`);
+  }
+
+  showUpdatedComments(updatedFilm) {
+    this.update(updatedFilm);
+    this._addComment();
+  }
+
+  showCommentsAfterDel(updatedFilm) {
+    this.update(updatedFilm);
+    this._deleteComment();
+  }
+
+  showCommentsError() {
+    const newCommentField = this._element.querySelector(`.film-details__comment-input`);
+    newCommentField.style.border = `5px solid red`;
+    setTimeout(() => {
+      newCommentField.style.border = `1px solid #979797`;
+    }, 2000);
+    this.shake();
+    newCommentField.disabled = false;
+  }
+
 }
 
 export default FilmPopup;
