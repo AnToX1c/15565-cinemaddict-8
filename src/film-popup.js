@@ -32,7 +32,7 @@ class FilmPopup extends Component {
     this._onSubmit = null;
     this._onRatingClick = null;
     this._onCloseButtonClick = this._onCloseButtonClick.bind(this);
-    // this._onUserRatingClick = this._onUserRatingClick.bind(this);
+    this._onUserRatingClick = this._onUserRatingClick.bind(this);
     this._onPopupEscPress = this._onPopupEscPress.bind(this);
     this._onDocumentCtrlEnterPress = this._onDocumentCtrlEnterPress.bind(this);
   }
@@ -43,6 +43,12 @@ class FilmPopup extends Component {
 
   _onPopupEscPress(evt) {
     return evt.keyCode === ESC_KEYCODE && typeof this._onClick === `function` && this._onClick();
+  }
+
+  _onUserRatingClick(evt) {
+    const newPersonalRating = parseInt(evt.target.value, 10);
+    this._blockRatingInputs();
+    return typeof this._onRatingClick === `function` && this._onRatingClick(newPersonalRating);
   }
 
   _processForm(formData) {
@@ -291,9 +297,10 @@ class FilmPopup extends Component {
   bind() {
     document.addEventListener(`keydown`, this._onPopupEscPress);
     document.addEventListener(`keydown`, this._onDocumentCtrlEnterPress);
-    this._element.querySelector(`.film-details__close-btn`)
-      .addEventListener(`click`, this._onCloseButtonClick);
-    // this._element.querySelector(`.film-details__user-rating-score`).addEventListener(`click`, this._onUserRatingClick);
+    this._element.querySelector(`.film-details__close-btn`).addEventListener(`click`, this._onCloseButtonClick);
+    this._element.querySelectorAll(`.film-details__user-rating-input`).forEach((element) => {
+      element.addEventListener(`click`, this._onUserRatingClick);
+    });
   }
 
   unbind() {
@@ -301,8 +308,42 @@ class FilmPopup extends Component {
     document.removeEventListener(`keydown`, this._onDocumentCtrlEnterPress);
     this._element.querySelector(`.film-details__close-btn`)
         .removeEventListener(`click`, this._onCloseButtonClick);
-    // this._element.querySelector(`.film-details__user-rating-score`)
-    //     .removeEventListener(`click`, this._onUserRatingClick);
+    this._element.querySelectorAll(`.film-details__user-rating-input`).forEach((element) => {
+      element.removeEventListener(`click`, this._onUserRatingClick);
+    });
+  }
+
+  _blockRatingInputs() {
+    this._element.querySelectorAll(`.film-details__user-rating-input`).forEach((element) => {
+      element.disabled = true;
+      element.checked = false;
+    });
+  }
+
+  _unblockRatingInputs(newRating) {
+    newRating = newRating.toString();
+    this._element.querySelectorAll(`.film-details__user-rating-input`).forEach((element) => {
+      element.disabled = false;
+      if (element.value === newRating) {
+        element.checked = true;
+      }
+    });
+    this._element.querySelector(`.film-details__user-rating`).textContent = `Your rate ${newRating}`;
+  }
+
+  showUpdatedRating(updatedFilm) {
+    this.update(updatedFilm);
+    this._unblockRatingInputs(this._personalRating);
+  }
+
+  errorRating() {
+    const ratingField = this._element.querySelector(`.film-details__user-rating-score`);
+    ratingField.style.backgroundColor = `red`;
+    setTimeout(() => {
+      ratingField.style.backgroundColor = ``;
+    }, 2000);
+    this.shake();
+    this._unblockRatingInputs(this._personalRating);
   }
 }
 

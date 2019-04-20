@@ -77,7 +77,15 @@ const fillTheCards = (destination, cards) => {
     filmPopup.onCloseButtonClick = () => {
       filmPopup.unrender();
     };
-    // filmPopup.onUserRatingClick = (newPersonalRating) => {};
+    filmPopup.onUserRatingClick = (newRating) => {
+      el.personalRating = newRating;
+      api.updateFilm({id: el.id, data: el.toRAW()})
+        .then((updatedFilm) => {
+          filmCard.update(updatedFilm);
+          filmPopup.showUpdatedRating(updatedFilm);
+        })
+        .catch(() => filmPopup.errorRating());
+    };
     filmPopup.onSubmit = (newObject) => {
       el.isWatchlist = newObject.isWatchlist === `on`;
       el.isWatched = newObject.isWatched === `on`;
