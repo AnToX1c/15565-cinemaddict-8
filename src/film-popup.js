@@ -150,16 +150,18 @@ class FilmPopup extends Component {
   }
 
   shake() {
-    this._element.style.border = `solid red 5px`;
-    setTimeout(() => {
-      this._element.style.border = ``;
-    }, 2000);
-    const keyframe = [
-      {transform: `translateX(0)`},
-      {transform: `translateX(-5px)`},
-      {transform: `translateX(5px)`}
-    ];
-    this._element.animate(keyframe, {duration: 600, iterations: 3});
+    if (this._element) {
+      this._element.style.border = `solid red 5px`;
+      setTimeout(() => {
+        this._element.style.border = ``;
+      }, 2000);
+      const keyframe = [
+        {transform: `translateX(0)`},
+        {transform: `translateX(-5px)`},
+        {transform: `translateX(5px)`}
+      ];
+      this._element.animate(keyframe, {duration: 600, iterations: 3});
+    }
   }
 
   static createMapper(target) {
@@ -378,7 +380,7 @@ class FilmPopup extends Component {
   }
 
   _onCommentEnterPress(evt) {
-    if (evt.keyCode === ENTER_KEYCODE) {
+    if (evt.keyCode === ENTER_KEYCODE && evt.ctrlKey === false) {
       evt.target.disabled = true;
       const newComment = {
         author: AUTHOR,
