@@ -3,8 +3,7 @@ import ModelFilm from './model-film.js';
 const Method = {
   GET: `GET`,
   POST: `POST`,
-  PUT: `PUT`,
-  // DELETE: `DELETE`
+  PUT: `PUT`
 };
 
 const checkStatus = (response) => {
@@ -53,17 +52,12 @@ const API = class {
       .then(ModelFilm.parseFilm);
   }
 
-  // deleteFilm({id}) {
-  //   return this._load({url: `movies/${id}`, method: Method.DELETE});
-  // }
-
   _load({url, method = Method.GET, body = null, headers = new Headers()}) {
     headers.append(`Authorization`, this._authorization);
 
     return fetch(`${this._endPoint}/${url}`, {method, body, headers})
       .then(checkStatus)
       .catch((err) => {
-        // console.error(`fetch error: ${err}`);
         throw err;
       });
   }
